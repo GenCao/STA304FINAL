@@ -1,0 +1,358 @@
+---
+title: Analysis of the causal effect of being a starter lineup and the average minutes per game
+author: 'Gen Cao 1005109696'
+date: "12/9/2020"
+output:
+  pdf_document:
+    latex_engine: xelatex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r echo=FALSE, message=FALSE, include=FALSE}
+library(tidyverse)
+library(knitr)
+library(skimr)
+library(dplyr)
+library(broom)
+library(arm)
+library(Hmisc)
+library(huxtable)
+library(ggplot2)
+library(plyr)
+library(car)
+library(lme4)
+```
+
+
+## Abstract:
+Basketball is one of the most popular sports in the world, and National Basketball Association(NBA) is premier professional basketball league in the world. This paper will use propensity score matching and multiple linear regression  to estimate  the causal relationship between being in the starting lineup and the average minutes basketball players play per game in a single season. As a result, the causal relationship between being in the starting lineup and the average minutes basketball players play per game is significant. Being in the starting lineup will increase the average minutes per game by 2.4538 minutes for a NBA player on average regardless of the basketball skills, age etc.
+
+
+## Keywords:
+Propensity score match, Multiple linear regression, Causal relationship, Basketball, NBA, Average Minutes Per Game
+
+\newpage
+
+## Introdution
+
+National Basketball Association(NBA) is a professional basketball league that performs the highest level of basketball. The NBA contains the highest-paid professional basketball players in the world and the basketball players in the NBA are very competitive in terms of playing time.(Song, Gao, etc. 2020) Having a large playing time for a basketball player indicates a chance of scoring more points, getting more steals, and grabbing more rebounds, etc. Some teams in the NBA are willing to concentrate their payroll on the "star" players who generally have more playing time and better performance on the court (Hajime Katayama & Hudan Nuch, 2011). The sports industry has become more professional with the entry of capital. Sports have become a well-developed global economic industry instead of entertainment activities. Sports have became to a well-developed economic industry instead of just an entertainment activity. Thousands of sports analysts collect the data of athletes in the game and analyze their performance from a statistical perspective. In addition, athletes also hire their own analysts in order to have a better understanding of their game and help them to plan their careers. (Hajime Katayama & Hudan Nuch, 2011)
+
+Paul R. Rosenbaum and Donald Rubin introduced the propensity score matching in 1983, researchers have been using propensity score matching in their studies over 20 years from now. Propensity Score Matching (PSM) is is a statistical matching technique that attempts to randomize the observations and is used to estimate the causal effect of a treatment(Hill, J. 2008). Since being a starting lineup for a basketball player is not completely random, the propensity score matching would be a great method to help us to construct an artificial control group and estimate the causal impact of an intervention.
+
+As mentioned before, larger playing time provides the opportunity of having a great performance for basketball players. The average minutes a basketball player plays per game is associated with their historical performance and whether they are in the starter lineup of the team. However, whether a player is in the starter lineup of the team is completely decided by the coach of that team. Under certain circumstances, coaches might put some well-performed players outside of the starter lineup roster due to the tactical strategy. Nevertheless, this does not necessarily mean the player will play less portions of the game. Therefore, whether being a starter lineup will increase the average minutes a basketball player plays becomes an interesting question.
+
+In the data and model section (Section 2), the data selection, the propensity score matching simulation, and the multiple linear regression model of the sample created by propensity score matching analysis will be discussed. The results of the propensity score analysis are provided in the Results section (Section 3), and inferences of this data along with conclusions are presented in the Conclusion section (Section 4).
+
+
+## Data:
+All the analysis performed in this paper are based on the player stats per game from the 2019-20 NBA season and it is collected by "basketball reference". The goal of this paper is to determine the causal relationship between being a starter lineup and the average minutes basketball players play per game in a single season. 
+
+Basketball is a sport full of strategy, coaches may change the roster frequently during a regular season. However, whether a player is in the starting lineup is not completely random. Therefore, it is important to quantify the variable corresponding to the status of the starting lineup. The variable "starting rate" is computed by dividing the number of games a player played in the starter lineup by the total number of games a player played in a single season.
+
+The treatment group and control group are separated by the variable “started”, “started” is a binary variable. A player is assigned to the treatment group (started = 1) if the "starting rate" of that player is greater or equal to 0.45. A player is assigned to the control group (started = 0) if the "starting rate" is less than 0.45. The players in the treatment group were in the starting lineup for at least 45% of the game they have played in the 2019-20 season. There are 3 to 4 players competing for one spot of the starting lineup in each team. If a player has been put into the starting lineup for at least 45% of his game, it truly indicates there is a high probability that he is guaranteed a spot on the starting lineup in that season. In addition, the players with a 100% starting rate are excluded from the sample size. This is because the players with a 100% starting rate are typically the stars of the team and they would have large playing time regardless of the decision made by the coach. 
+
+This paper performs an observational study since all the data analyzed were from the past NBA season. As mentioned earlier in the paper, the coaches are not randomly assigning players into the starting lineup. Therefore the randomization component is not provided from the dataset and  it is hard to make a comparison between the treatment and control group. In other words, the causality estimated by using the data directly from NBA 2019-20 season would be biased and the estimated parameters do not reflect the true effect of being in the starting lineup towards the average minutes a player plays.
+
+
+## Model：
+propensity score match
+The purpose of this study is to determine the causal effect between being in the starting lineup and the average minutes basketball players play per game in a single season. Since the selection of starting lineup basketball players is not completely random, propensity score match could be helpful in determining the causal relationship. Propensity score match will assign some probabilities to each observation of whether or not they would be in the treatment. The probabilities are constructed by using a logistic regression shown below.
+
+$$
+started=\beta_{0}+\beta_{1} X_{PTS}+\beta_{2} X_{Age}+\beta_{3} X_{Pos}+\beta_{4} X_{AST}+\beta_{5} X_{TRB}+\beta_{6} X_{STL}+\beta_{7} X_{BLK}
+$$
+$"started"$ represents whether the player will earn a spot in the starting lineup in a regular season \
+$\beta_{0}$ is the intercept term\
+$X_{PTS}$ shows the average points per game for each player.
+$\beta_{1}$ is the coefficient for the slope of $X_{PTS}$, it shows how the average points per game are related to earning a spot in the starting lineup in a regular season\
+$X_{Age}$ is associated with the age of the players \
+$\beta_{2}$ is the coefficient for the slope of $X_{Age}$\, it is only dependent on each player\
+$X_{Pos}$ separates the players by the position they play in the game, the positions are PG, SG, SF, PF, C, PG-SG, SG-SF, SF-PF, PF-C.\
+$\beta_{3}$ is the coefficient for the slope of $X_{Pos}$, it reflects the relationship between the position a player plays and whether he is in the starting lineup.\
+$X_{AST}$ is the average assists per game for a player in a single season.\
+$\beta_{4}$ is the coefficient for the slope of $X_{AST}$. \
+$X_{TRB}$ is the average rebound per game for a player in a single season.\
+$\beta_{5}$ is the coefficient for the slope of $X_{TRB}$, it shows how the average rebound per game are related to earning a spot in the starting lineup in a regular season\
+$X_{STL}$ is the average steals per game for a player in a single season.\
+$\beta_{6}$ is the coefficient for the slope of $X_{STL}$, it shows how the average steals per game are related to earning a spot in the starting lineup in a regular season\
+$X_{BLK}$ is the average blocks per game for a player in a single season.\
+$\beta_{7}$ is the coefficient for the slope of $X_{BLK}$, it shows how the average blocks per game are related to earning a spot in the starting lineup in a regular season\
+
+
+This logistic regression is used to predict the probability of each player being in the treatment group, ie: whether the player will guarantee a spot in the starting lineup. The basketball skills or the performance of players has been controlled in the logistic regression to avoid any biases. There are players who have similar historical performance and the same probability to be selected into the treatment. However, some of these players earned a position in the starting lineup and some are not. Propensity Score Matching method will create a new dataset so that the players from the treatment group to the control group will be matched based on the propensity to earn a spot in the starting lineup. Simply, the player from the treatment group and the player from the control with the same propensity to be in the treatment group will be matched together.
+
+Multiple linear regression
+Multiple linear regression (MLR) will be implemented after the propensity score match method, the main purpose of doing regression in the second stage is to start finding the causal relationship between being in the starting lineup and the average minutes a player plays in a single season. The linear regression is shown below,
+
+$$
+Y_{MP}=\beta_{0}+\beta_{1} X_{started}+\beta_{2} X_{PTS}+\beta_{3} X_{Age}+\beta_{4} X_{Pos}+\beta_{5} X_{AST}+\beta_{6} X_{TRB}+\beta_{7} X_{STL}+\beta_{8} X_{BLK}+e
+$$
+
+Here, $Y_{MP}$ is the average minutes a basketball player plays per game in a single season, $\beta_{0}$ is the intercept term. $X_{started}$ is a binary variable and $X_{started}$ =1 if a player is in the treatment group and is 0 otherwise. $\beta_{1}$ reflects the relationship between having a spot in the starting lineup and the average minutes a player plays in a single season, it is the main interest of this paper. The rest of explanatory variables and betas represents the same thing as they did in the logistic regression for propensity score match. $"e"$ is the error term of the regression, it reflects all the variations of $Y_{MP}$ can not be explained by the explanatory variables. In addition, all the data used in this multiple linear regression are from the new dataset created by using propensity score matching method.
+
+Nevertheless, the potential correlation among the explanatory variables could be a threat to the assumption of multiple linear regression. Since the evolution of basketball has been going on for decades, the modern basketball players are trained to be more all-round players. The opponents are afraid of the better scorer to attack the rim, and therefore the players with better offensive skill will also have more assists. Thus, the correlation might exist between the number of points a basketball player scores and the number of assists he sent. Therefore, it is important to implement the variable selection and check the assumptions of MLR.
+
+Variable selection:  Bayesian Information Criterion (BIC)
+Both BIC and AIC are variable selection criteria which all balance the prediction accuracy and a penalty for model complexity. However, the BIC is more appropriate for the MLR that was introduced earlier. This is because BIC has more strict criteria in terms of the number of predictors. The penalty term in BIC is greater than the penalty term in AIC when we have a large number of predictors. Backward elimination starts with all the potential terms in the model, then removes the term with the largest P-value each time to give a smaller information criterion.
+
+
+## Result:
+
+```{r, message=FALSE, echo=FALSE, include=FALSE}
+try_nba19_20 <- read.csv("/Users/garycao/Desktop/STA304/304Final/NBA_Player_stas_2019-20.csv")
+```
+
+```{r, message=FALSE, echo=FALSE, include=FALSE}
+#data clean process
+try_nba19_20$starting_rate <- (try_nba19_20$GS / try_nba19_20$G)
+cleaned_try_nba19_20 = try_nba19_20[try_nba19_20$G >= 15,]
+cleaned_try_nba19_20 = cleaned_try_nba19_20[cleaned_try_nba19_20$starting_rate != 1,]
+cleaned_try_nba19_20$started <- 
+  if_else(cleaned_try_nba19_20$starting_rate >= 0.45, 1, 0)
+
+cleaned_try_nba19_20$started <- 
+  as.integer(cleaned_try_nba19_20$started)
+
+cleaned_try_nba19_20 <- cleaned_try_nba19_20[!duplicated(cleaned_try_nba19_20$Player),]
+cleaned_try_nba19_20 <- na.omit(cleaned_try_nba19_20)
+
+
+
+#summary(cleaned_try_nba19_20)
+
+#propensity score matching
+propensity_score <- glm(started ~ PTS + Age + Pos + AST + TRB + STL + BLK, 
+                        family = binomial,
+                        data = cleaned_try_nba19_20)
+
+cleaned_try_nba19_20 <-  augment(propensity_score, 
+          data = cleaned_try_nba19_20,
+          type.predict = "response") %>% 
+  dplyr::select(-.resid, -.std.resid, -.hat, -.sigma, -.cooksd) 
+
+cleaned_try_nba19_20 <- 
+  cleaned_try_nba19_20 %>% 
+  arrange(.fitted, started)
+
+
+cleaned_try_nba19_20$treated <- 
+  if_else(cleaned_try_nba19_20$starting_rate >= 0.45, 1, 0)
+
+cleaned_try_nba19_20$treated <- 
+  as.integer(cleaned_try_nba19_20$treated)
+
+matches <- arm::matching(z = cleaned_try_nba19_20$treated, 
+                         score = cleaned_try_nba19_20$.fitted)
+
+cleaned_try_nba19_20 <- cbind(cleaned_try_nba19_20, matches)
+
+cleaned_try_nba19_20_matched <- 
+  cleaned_try_nba19_20 %>% 
+  filter(match.ind != 0) %>% 
+  dplyr::select(-match.ind, -pairs, -treated)
+
+cleaned_try_nba19_20_matched$started <- 
+  if_else(cleaned_try_nba19_20_matched$starting_rate >= 0.45, 1, 0)
+
+cleaned_try_nba19_20_matched$started <- 
+  as.integer(cleaned_try_nba19_20_matched$started)
+
+#head(cleaned_try_nba19_20_matched)
+
+#huxtable::huxreg(propensity_score_regression_matched)
+
+```
+
+
+```{r, echo=FALSE, message=FALSE}
+#propensity_score_regression_matched Model
+propensity_score_regression_matched <- 
+  lm(MP ~ started + PTS + Age + Pos + AST + TRB + STL + BLK, 
+                data = cleaned_try_nba19_20_matched)
+#summary(propensity_score_regression_matched)
+```
+
+
+```{r, echo=FALSE, message=FALSE}
+#reduced model
+reduced_regression = lm(MP ~ started + PTS + Age + Pos + AST + TRB + STL + BLK, data = cleaned_try_nba19_20)
+
+```
+
+
+```{r, message=FALSE, echo=FALSE}
+#Figure 1: linear relationship between starting rate and minutes per game
+
+
+ggplot(cleaned_try_nba19_20_matched, aes(x = starting_rate,
+                          y = MP,color= as.factor(started),shape=as.factor(started))) +
+  xlab("Fitted Starting Rate")+
+  ylab("Minutes Per Game")+
+  ggtitle("Figure 1: Scatterplot Of Fitted Starting Rate and Minutes Per Game 9696")+
+labs(shape= "Control = 0 & Treatment = 1", colour="Control = 0 & Treatment = 1")+
+  geom_point()+
+  theme(legend.position = "bottom")+
+  geom_smooth(method=lm, se=FALSE, fullrange=TRUE)+ 
+  scale_color_manual(values=c('steelblue','#E69F00'))
+```
+
+Figure 1 is the Scatterplot Of Fitted Starting Rate and Minutes Per Game, which shows an obvious relationship between "starting rate" and the average minutes per game. This plot also shows the difference between treatment group and control group in terms of minutes per game.
+
+ 
+ 
+
+```{r,echo=FALSE, message=FALSE}
+#Table1: VIF of the logistic regression for Propensity Score Matching
+#multicollinearity
+model_vif <- vif(propensity_score)
+kable(model_vif, caption = 'Table1: VIF of the logistic regression for Propensity Score Matching')
+```
+
+
+Table 1 is the variance inflation factor of the logistic regression that has been used in the Propensity Score Matching process. All the variance inflation factors are less than 5.
+
+
+
+```{r,echo=FALSE, message= FALSE}
+#The table of all the coefficients for Propensity Score Matched Regression Model
+Estimated_Parameters = c( "Intercept", "started", "PTS", "Age", "PosPF", "PosPF-C", "PosPF-SF", "PosPG", "PosSF", "PosSF-PF", "PosSG", "PosSG-PG", "AST", "TRB", "STL", "BLK")
+Estimated_coefficient = c(6.38893, 2.41714, 0.67321, 0.05827, 3.05188, 3.72943, 2.97578, 1.82349, 4.47230, 4.47350, 3.66873, 1.29389, 0.66943, 0.46316, 1.85111, 0.79835)
+pvalue = c("0.000511 **","3.46e-07 ***","<2e-16 ***","0.272778 ","0.000332 ***","0.163604","0.116306 ","0.166350 ","2.11e-06 ***","0.089490 .","0.000434 ***","0.523166","0.013587 *","0.008062 **","0.023340 *.","0.295476 ")
+data_for_table <- data.frame(Estimated_Parameters, Estimated_coefficient, pvalue)
+kable(data_for_table, caption = "Table 2: Statistical Summary of Propensity Score Matched Regression Model", digits = 4)
+```
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+Residual standard error: 2.487 on 132 degrees of freedom
+Multiple R-squared:  0.789,	Adjusted R-squared:  0.7651 
+F-statistic: 32.91 on 15 and 132 DF,  p-value: < 2.2e-16
+ 
+ 
+Table 2 provides the statistical summary of the regression model computed by using the new dataset created by the propensity score matching process. The main interest of this paper, the estimated coefficient for "started" is 2.4171 and the p-value is very close to 0. 
+Holding all other variables constant, if a player has earned a spot in the starting lineup, the average minutes per game he plays in a regular season is estimated to increase 2.4171 minutes on average.
+
+
+
+
+\newpage
+
+
+
+
+Figure 2: Scatterplot Matrix For Corrlations
+
+```{r,echo=FALSE, message= FALSE, warning= FALSE}
+
+pairs(~MP+started+PTS + Age + AST + TRB + STL + BLK,
+      data=cleaned_try_nba19_20_matched,gap=0.4,cex.labels=0.85, main = "Scatterplot Matrix For Corrlations 9696")
+```
+
+
+\newpage
+
+
+
+
+Figure 3:Diagnostic Plots of the Propensity Score Matched Regression Model
+
+
+```{r,echo=FALSE, message= FALSE, warning= FALSE}
+#Diagnostic Plots of the Propensity Score Matched Regression Model
+par(mfrow=c(2,2))
+plots<-plot(propensity_score_regression_matched)
+```
+
+
+
+
+
+
+```{r, echo=FALSE, message=FALSE, include= FALSE}
+#BIC
+n <- nrow(cleaned_try_nba19_20_matched)
+step(propensity_score_regression_matched, direction = "backward", k=log(n))
+```
+
+```{r, echo=FALSE, message=FALSE}
+Estimated_Parameters = c("<None>","started", "STL", "PTS")
+Df = c("", 1,1,1)
+Sum_of_Sq = c("",180.07,260.09,1364.31)
+RSS = c(995.34,1175.41,1255.44,2359.66)
+BIC = c(302.06, 321.67,331.42,424.81)
+data_for_table <- data.frame(Estimated_Parameters, Df,Sum_of_Sq,RSS,BIC)
+kable(data_for_table, caption = "Table 3: Bayesian Information Criterion(BIC) of the Propensity Score Matched Regression Model", digits = 4)
+```
+
+Table 3 shows the statistical analysis of the Propensity Score Matched Regression Model by using the Bayesian Information Criterion(BIC) with backward elimination
+$$
+Final\ Model (BIC\  Adjuested) : MP=11.0246+2.4538 X_{started}+0.8284 X_{PTS}+4.0715 X_{STL}+e
+$$
+
+The final model suggested by backward Bayesian Information Criterion is shown above, the variable "starting rate", "PTS" and "STL" are significant and have large contributions towards the regression model.
+
+\newpage
+
+## Disscussion
+
+The goal of this paper is to determine the causal relationship between being a starting lineup player and the average minutes per game. Even though the selection of the starting lineup for the NBA players is not completely random, the causal relationship still is possible to exist. Finding the casual relationship requires the conditional independence assumption (CIA), which indicates that all the things should be equal between the treatment group and the control group except the treatment variable. ie, the only difference between the treatment group and the control group should be the players in the treatment group have earned a spot in the starting lineup and the players in the control group do not. In order to satisfy the CIA, a logistic regression is used in the process of propensity score matching method. The logistic regression is used to predict the probability of each player being in the treatment group. Then, create a new dataset and match the players from treatment group to control group based on their propensity score of being in the treatment. Since the players with the same propensity to be in the treatment group are not get selected into the starting lineup, the selection of players being in the starting lineup and the being into the treatment group finally become as good as random. Hence, the conditional independence assumption is satisfied and the players in the control group are indifferent with the players in the treatment group other than the treatment variable. Therefore, the multiple linear regression becomes an applicable method in the analysis of determining the causal effect of being a starter lineup and the average minutes per game. To further ensure the accuracy and reduce the complexity of the model, the diagnostic plots and bayesian information criterion(BIC) are implemented after finishing constructing the multiple linear regression model.
+
+There is an obvious and positive relationship between the average minutes per game and the starting rate for a NBA player according to Figure 1. Simply, a NBA player would earn more time playing basketball on the court if he gets selected in the starting lineup for most of his games. The table 1 detects multicollinearity and tests the correlation between the predictors for the logistic regression that has been used in the Propensity Score Matching process. The predictors of the logistic regression model have a low correlation since the VIF for all the predictors are less than 2. Therefore, the multicollinearity assumption for the logistic regression model is satisfied and the predicted probability of being in the treatment group by using the logistic regression model is unbiased. There is a slight decrease pattern found in the residuals vs fitted plot of Figure 3. However, all the residuals points are randomly distributed around the horizontal zero line, and this indicates there is a constant variation across the independent variables and this model provides an adequate summary of the data. There is only one small increase trend shown in the scale-location plot, but all the Square Root of standardized residuals are randomly distributed around the line. Hence the constant variation assumption is satisfied. Residuals Vs Leverage:There is no influential case and all the points are located inside of the Cook’s distance lines. Even there are few points such as #39, #142 that are very close to the edge of the Cook's distance line. However, these points would not be considered to be influential cases, since they are still located inside of the Cook's distance line. Normal Q-Q Plot: Since most of the standardized residuals points are close or on the line in the normal Q-Q plot, and there are only few points that appear to be slightly away from the 45 degree line. Therefore, there is strong evidence to say the standardized residuals follow normal distribution. At this point, all the assumptions required in order to determine the causal relationship are satisfied.The propensity score matching analysis and the results of multiple linear regression model indicates that if there are two players who have the same basketball skill, and only one of these two players has been selected in the starting lineup for over 45% of his game. Then the average minutes per game the starting player plays in a regular season is estimated to be 2.4538 minutes more on average than the player who did not get selected into the starting lineup. In other words, being in the starting lineup will increase the average minutes per game by 2.4538 minutes for a NBA player on average regardless of the basketball skills, age. This finding is considered to be important since there are only 48 minutes in one basketball game and the average minutes per game for a NBA player is 23.68851 minutes This finding could also be referred as a global impacts since NBA has became to a global well-developed economic industry. Having more minutes of playing time in the NBA Basketball game for any basketball player with any background from any country is equivalent to have more chances to prove himself. Being a player in the starting lineup is important for all the basketball player across the world.
+
+### Weakness:
+The result of this model is significant, but it might be biased when it is referred as the causal relationship between being a player in starting lineup and the average minutes for all the basketabll players in the world. The sample size is composed of the data from NBA 2019-20 season, which is considered to be a small and non-representative from the global perspective. The players with a 100% starting rate are excluded from the sample size during the variable selection. This is because the players with a 100% starting rate would have large playing time regardless of the decision made by the coach. However, this assumption is not necessarily true. There are some players did not get matched in the propensity score matching process to the the adoption of a small sample size. This would reduce the sample size of the dataset created by propensity score matching. Small sample size also implies a low statistical power and high probability of have type I error. There is a slight decrease pattern found in the residuals vs fitted plot of Figure 3 and there are few points on the edge of the cook's distance line in the Residuals Vs Leverage plot. It is important to understand why there are such points located at the edge of the cook's distance line, the outliers can be remove them under certain circumstances.
+
+### Next Steps:
+This observational study could be improved by applying the model on the data collected from different basketball leagues across different countries and teams. Having a large sample size allows a more precise estimate of the treatment effect and is easier to assess the representativeness of the sample and to generalize the results. In addition, it is more appropriate to interpret the findings of this observational study as a global impacts after adopting the sample size which contains the information of basketball league from different countries. A further examination of constant variation assumption is necessary  since there is a slight decrease pattern found in the residuals vs fitted plot of Figure 3 and there are few points on the edge of the cook's distance line in the Residuals Vs Leverage plot. The transfermation of dependent variable and in dependent variable will be helpful if the examination of constant variation assumption is failed.
+
+
+
+\newpage
+
+### References:
+
+Hill, J. (2008). Discussion of research using propensity‐score matching: Comments on ‘A critical appraisal of propensity‐score matching in the medical literature between 1996 and 2003’ by Peter Austin, Statistics in Medicine. Statistics in Medicine, 27(12), 2055–2061. https://doi.org/10.1002/sim.3245
+
+Song, K., Zou, Q., & Shi, J. (2020). Modelling the scores and performance statistics of NBA basketball games. Communications in Statistics-Simulation and Computation, 49(10), 2604-2616.
+
+Song, K., Gao, Y., & Shi, J. (2020). Making real-time predictions for NBA basketball games by combining the historical data and bookmaker’s betting line. Physica A: Statistical Mechanics and its Applications, 124411.
+
+R Core Team (2019b). R: A Language and Environment for Statistical Computing.R Foundation for Statistical Computing, Vienna, Austria.
+
+Wickham H, Averick M, Bryan J, Chang W, McGowan LD, François R, Grolemund G, Hayes A, Henry L, Hester J, Kuhn M, Pedersen TL, Miller E, Bache SM, Müller K, Ooms J, Robinson D, Seidel DP, Spinu V, Takahashi K, Vaughan D, Wilke C, Woo K, Yutani H (2019). “Welcome to the tidyverse.” Journal of Open Source Software, 4(43), 1686. doi: 10.21105/joss.01686.
+
+Wickham H (2016). ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York. ISBN 978-3-319-24277-4, https://ggplot2.tidyverse.org.
+
+Bates D, Mächler M, Bolker B, Walker S (2015). “Fitting Linear Mixed-Effects Models Using lme4.” Journal of Statistical Software, 67(1), 1–48. doi: 10.18637/jss.v067.i01.
+
+Xie Y (2020). knitr: A General-Purpose Package for Dynamic Report Generation in R. R package version 1.30, https://yihui.org/knitr/.
+
+Hadley Wickham, Romain François, Lionel Henry and Kirill Müller (2018). dplyr: A Grammar of Data Manipulation. R package version
+  0.7.6. https://CRAN.R-project.org/package=dplyr
+
+David Robinson, Alex Hayes and Simon Couch (2020). broom: Convert Statistical Objects into Tidy Tibbles. R
+  package version 0.7.2. https://CRAN.R-project.org/package=broom
+
+Andrew Gelman and Yu-Sung Su (2020). arm: Data Analysis Using Regression and Multilevel/Hierarchical
+  Models. R package version 1.11-2. https://CRAN.R-project.org/package=arm
+
+Frank E Harrell Jr, with contributions from Charles Dupont and many others. (2020). Hmisc: Harrell
+  Miscellaneous. R package version 4.4-2. https://CRAN.R-project.org/package=Hmisc
+
+David Hugh-Jones (2020). huxtable: Easily Create and Style Tables for LaTeX, HTML and Other Formats. R
+  package version 5.1.1. https://CRAN.R-project.org/package=huxtable
+
+H. Wickham. ggplot2: Elegant Graphics for Data Analysis. Springer-Verlag New York, 2016.
+
+ Hadley Wickham (2011). The Split-Apply-Combine Strategy for Data Analysis. Journal of Statistical Software,
+  40(1), 1-29. URL http://www.jstatsoft.org/v40/i01/.
+
+John Fox and Sanford Weisberg (2019). An {R} Companion to Applied Regression, Third Edition. Thousand Oaks
+  CA: Sage. URL: https://socialsciences.mcmaster.ca/jfox/Books/Companion/
+
+Douglas Bates, Martin Maechler, Ben Bolker, Steve Walker (2015). Fitting Linear Mixed-Effects Models Using
+  lme4. Journal of Statistical Software, 67(1), 1-48. doi:10.18637/jss.v067.i01.
+  
+Corby, D. (2020). 2019-20 NBA Player Stats: Per Game. Retrieved December 9, 2020, from https://www.basketball-reference.com/leagues/NBA_2020_per_game.html
+
